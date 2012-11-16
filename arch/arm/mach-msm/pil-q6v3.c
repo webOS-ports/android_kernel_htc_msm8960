@@ -100,6 +100,7 @@ static int pil_q6v3_reset(struct pil_desc *pil)
 	u32 reg;
 	struct q6v3_data *drv = dev_get_drvdata(pil->dev);
 
+	usleep(5);
 	/* Put Q6 into reset */
 	reg = readl_relaxed(LCC_Q6_FUNC);
 	reg |= Q6SS_SS_ARES | Q6SS_ISDB_ARES | Q6SS_ETM_ARES | STOP_CORE |
@@ -115,6 +116,7 @@ static int pil_q6v3_reset(struct pil_desc *pil)
 		CORE_TCM_MEM_PERPH_EN;
 	writel_relaxed(reg, LCC_Q6_FUNC);
 
+	usleep(5);
 	/* Turn on Q6 core clocks and take core out of reset */
 	reg &= ~(CLAMP_IO | Q6SS_SS_ARES | Q6SS_ISDB_ARES | Q6SS_ETM_ARES |
 			CORE_ARES);
@@ -122,18 +124,22 @@ static int pil_q6v3_reset(struct pil_desc *pil)
 
 	/* Wait for clocks to be enabled */
 	mb();
+	usleep(5);
 	/* Program boot address */
 	writel_relaxed((drv->start_addr >> 12) & 0xFFFFF,
 			drv->base + QDSP6SS_RST_EVB);
 
+	usleep(5);
 	writel_relaxed(Q6_STRAP_TCM_CONFIG | Q6_STRAP_TCM_BASE,
 			drv->base + QDSP6SS_STRAP_TCM);
 	writel_relaxed(Q6_STRAP_AHB_UPPER | Q6_STRAP_AHB_LOWER,
 			drv->base + QDSP6SS_STRAP_AHB);
 
+	usleep(5);
 	/* Wait for addresses to be programmed before starting Q6 */
 	mb();
 
+	usleep(5);
 	/* Start Q6 instruction execution */
 	reg &= ~STOP_CORE;
 	writel_relaxed(reg, LCC_Q6_FUNC);
