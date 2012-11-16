@@ -421,8 +421,9 @@ static void subsystem_restart_wq_func(struct work_struct *work)
 	 * order is being rebooted.
 	 */
 	if (!mutex_trylock(powerup_lock)) {
-		panic("%s[%p]: Subsystem died during powerup!",
-						__func__, current);
+		mutex_unlock(shutdown_lock);
+		panic("%s[%p]: Subsystem died during powerup!", __func__, current);
+		goto out;
 	}
 
 	do_epoch_check(dev);
