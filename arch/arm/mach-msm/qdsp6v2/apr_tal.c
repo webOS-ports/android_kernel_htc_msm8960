@@ -146,7 +146,8 @@ check_write_avail:
 struct apr_svc_ch_dev *apr_tal_open(uint32_t svc, uint32_t dest,
 				uint32_t dl, apr_svc_cb_fn func, void *priv)
 {
-	int rc;
+	int rc = 0;
+	int retries = 0;
 
 	if ((svc >= APR_CLIENT_MAX) || (dest >= APR_DEST_MAX) ||
 						(dl >= APR_DL_MAX)) {
@@ -172,10 +173,19 @@ struct apr_svc_ch_dev *apr_tal_open(uint32_t svc, uint32_t dest,
 		pr_debug("apr_tal:Wakeup done\n");
 		apr_svc_ch[dl][dest][svc].dest_state = 0;
 	}
-	rc = smd_named_open_on_edge(svc_names[dest][svc], dest,
-			&apr_svc_ch[dl][dest][svc].ch,
-			&apr_svc_ch[dl][dest][svc],
-			apr_tal_notify);
+	
+	retries = 0;
+	rc = 0;
+	do {
+		if (rc == -EAGAIN)
+			udelay(50);
+
+		rc = smd_named_open_on_edge(svc_names[dest][svc], dest,
+				&apr_svc_ch[dl][dest][svc].ch,
+				&apr_svc_ch[dl][dest][svc],
+				apr_tal_notify);
+	} while (rc == -EAGAIN && retries++ < 300);
+	
 	if (rc < 0) {
 		pr_err("apr_tal: smd_open failed %s\n",
 					svc_names[dest][svc]);
