@@ -101,28 +101,28 @@
 #define __always_unused			__attribute__((unused))
 
 /* gcc version specific checks */
-#define _gcc_header(x) __gcc_header(linux/compiler-gcc##x.h)	
- #define gcc_header(x) _gcc_header(x)	#if GCC_VERSION < 30200
+
+#if GCC_VERSION < 30200
 #include gcc_header(__GNUC__)	# error Sorry, your compiler is too old - please upgrade it.
 #endif
 
- #if GCC_VERSION < 30300
+#if GCC_VERSION < 30300
 # define __used			__attribute__((__unused__))
 #else
 # define __used			__attribute__((__used__))
 #endif
 
- #ifdef CONFIG_GCOV_KERNEL
+#ifdef CONFIG_GCOV_KERNEL
 # if GCC_VERSION < 30400
 #   error "GCOV profiling support for gcc versions below 3.4 not included"
 # endif /* __GNUC_MINOR__ */
 #endif /* CONFIG_GCOV_KERNEL */
 
- #if GCC_VERSION >= 30400
+#if GCC_VERSION >= 30400
 #define __must_check		__attribute__((warn_unused_result))
 #endif
 
- #if GCC_VERSION >= 40000
+#if GCC_VERSION >= 40000
 
  /* GCC 4.1.[01] miscompiles __weak */
 #ifdef __KERNEL__
@@ -131,11 +131,11 @@
 # endif
 #endif
 
- #define __used			__attribute__((__used__))
+#define __used			__attribute__((__used__))
 #define __compiler_offsetof(a, b)					\
 	__builtin_offsetof(a, b)
 
- #if GCC_VERSION >= 40100 && GCC_VERSION < 40600
+#if GCC_VERSION >= 40100 && GCC_VERSION < 40600
 # define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
 #endif
 
@@ -156,15 +156,15 @@
  */
 #define __cold			__attribute__((__cold__))
 
- #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
+#define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
 
- #ifndef __CHECKER__
+#ifndef __CHECKER__
 # define __compiletime_warning(message) __attribute__((warning(message)))
 # define __compiletime_error(message) __attribute__((error(message)))
 #endif /* __CHECKER__ */
 #endif /* GCC_VERSION >= 40300 */
 
- #if GCC_VERSION >= 40500
+#if GCC_VERSION >= 40500
 /*
  * Mark a position in code as unreachable.  This can be used to
  * suppress control flow warnings after asm blocks that transfer
@@ -179,9 +179,9 @@
  /* Mark a function definition as prohibited from being cloned. */
 #define __noclone	__attribute__((__noclone__))
 
- #endif /* GCC_VERSION >= 40500 */
+#endif /* GCC_VERSION >= 40500 */
 
- #if GCC_VERSION >= 40600
+#if GCC_VERSION >= 40600
 /*
  * Tell the optimizer that something else uses this function or variable.
  */
@@ -199,7 +199,7 @@
  */
 #define asm_volatile_goto(x...)	do { asm goto(x); asm (""); } while (0)
 
- #ifdef CONFIG_ARCH_USE_BUILTIN_BSWAP
+#ifdef CONFIG_ARCH_USE_BUILTIN_BSWAP
 #if GCC_VERSION >= 40400
 #define __HAVE_BUILTIN_BSWAP32__
 #define __HAVE_BUILTIN_BSWAP64__
@@ -209,13 +209,13 @@
 #endif
 #endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
 
- #if GCC_VERSION >= 50000
+#if GCC_VERSION >= 50000
 #define KASAN_ABI_VERSION 4
 #elif GCC_VERSION >= 40902
 #define KASAN_ABI_VERSION 3
 #endif
 
- #endif	/* gcc version >= 40000 specific checks */
+#endif	/* gcc version >= 40000 specific checks */
 
 #if !defined(__noclone)
 #define __noclone	/* not needed */
